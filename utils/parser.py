@@ -14,6 +14,17 @@ def parse_config(context):
         app_options: options to pass to the app
     """
 
+    # Extract tags from the destination analysis container
+    tags = context.destination.get("tags", [])
+
+    # Check if 'gpu' is in the list of tags
+    if "gpu" in tags:
+        print("GPU processing enabled.")
+        model = 'gambas'
+    else:
+        print("GPU processing not requested.")
+        model = 'SR'
+
     # Get the input file id
     input_container = context.client.get_analysis(context.destination["id"])
 
@@ -33,22 +44,49 @@ def parse_config(context):
     session_label = session.label
     session_label = session_label.replace(" ", "_")
     print("session label: ", session.label)
-    
-
-    # -------------------  Get Acquisition label -------------------  #
 
     # Specify the directory you want to list files from
     directory_path = '/flywheel/v0/input/input'
-    # List all files in the specified directory
+
+    # Define relevant keywords to keep
+    allowed_keywords = ["T2w", "T1w", "T2", "T1", "AXI", "SAG", "COR", "Fast"]
+
+    # Define diagnostic-related terms to remove
+    diagnostic_terms = ["DIAGNOSTIC", "NOT_FOR_DIAGNOSTIC_USE", "NOTDIAGNOSTIC"]
+
     for filename in os.listdir(directory_path):
         if os.path.isfile(os.path.join(directory_path, filename)):
-            filename_without_extension = filename.split('.')[0]
-            no_white_spaces = filename_without_extension.replace(" ", "")
-            # no_white_spaces = filename.replace(" ", "")
-            cleaned_string = re.sub(r'[^a-zA-Z0-9]', '_', no_white_spaces)
-            input_label = cleaned_string.rstrip('_') # remove trailing underscore
+            filename_without_extension = filename.rsplit('.', 1)[0]  # Remove file extension
+            
+            # Remove diagnostic-related terms (case insensitive)
+            for term in diagnostic_terms:
+                filename_without_extension = re.sub(term, '', filename_without_extension, flags=re.IGNORECASE)
 
-    print("Input label: ", input_label)
+            # Replace non-alphanumeric characters with underscores (preserve letters/numbers)
+            cleaned_string = re.sub(r'[^a-zA-Z0-9]', '_', filename_without_extension)
+            
+            # Remove trailing underscores
+            cleaned_string = cleaned_string.rstrip('_')
 
-    # gear_inputs, 
-    return subject_label, session_label, input_label
+            # Extract relevant keywords
+            extracted_keywords = [word for word in allowed_keywords if word in cleaned_string]
+
+            # Ensure "T1" and "T2" are converted to "T1w" and "T2w"
+            formatted_keywords = [
+                "T1w" if word == "T1" else "T2w" if word == "T2" else word
+                for word in extracted_keywords
+            ]
+
+            # Construct the final input label
+            if formatted_keywords:
+                input_label = "_".join(formatted_keywords)
+            else:
+                # Fallback: remove leading numbers and underscores
+                input_label = re.sub(r'^\d+_?', '', cleaned_string)
+
+            print("Input label:", input_label)
+
+            output_label = f'sub-{subject_label}_ses-{session_label}_acq-{input_label}.nii.gz'
+            print("Output label:", output_label)
+    
+    return output_label

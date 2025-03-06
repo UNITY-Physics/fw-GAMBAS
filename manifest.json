@@ -45,7 +45,7 @@
     },
     "gear-builder": {
       "category": "analysis",
-      "image": "flywheel/gambas:0.0.5"
+      "image": "flywheel/gambas:0.0.6"
     },
     "kcl-app-binary": "app/main.sh",
     "kcl-app-modalities": [
@@ -60,7 +60,7 @@
       "non-commercial-use-only": false
     }
   },
-  "description": "Generalised-Hilbert Mamba for Super-resolution of Paediatric Ultra-Low-Field MRI",
+  "description": "Generalised-Hilbert Mamba for Super-resolution of Paediatric Ultra-Low-Field MRI. GPU enabled runs will run the GAMBAS model on the input image to generate a super-resolved image (UNDER DEVELOPMENT). CPU runs will be slower and have slightly degraded performance. The model is based on the U-Net architecture and is trained on a dataset of paediatric ultra-low-field MRI images (3 months - 3 years).",
   "environment": {
     "FLYWHEEL": "/flywheel/v0",
     "LANG": "C.UTF-8",
@@ -88,5 +88,5 @@
   "name": "gambas",
   "source": "https://github.com/levente-1/GAMBAS/tree/fw-dev",
   "url": "",
-  "version": "0.0.5"
+  "version": "0.0.6"
 }

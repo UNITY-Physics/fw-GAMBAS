@@ -1,6 +1,7 @@
 import flywheel
 from pathlib import Path
 from options.base_options import BaseOptions  # BaseOptions is defined elsewhere
+from utils.parser import parse_config
 
 class TestOptions(BaseOptions):
     def initialize(self, parser):
@@ -10,6 +11,9 @@ class TestOptions(BaseOptions):
         # Initialize Flywheel context and configuration
         context = flywheel.GearContext()
         config = context.config
+
+        output_label = parse_config(context)
+        print("output_label: ", output_label)
 
         # Define default input and output directories
         parser.add_argument("--input_dir", type=str, default="/flywheel/v0/input/input", help="Path to input directory")
@@ -22,8 +26,8 @@ class TestOptions(BaseOptions):
 
         parser.add_argument("--image", type=str, default=str(input_files[0]), help="Path to input NIfTI image")
         parser.add_argument("--reference", type=str, default="/flywheel/v0/app/TemplateKhula.nii", help="Path to reference NIfTI image")
-        parser.add_argument("--result_gambas", type=str, default=str(Path(parser.get_default("output_dir")) / f"{input_files[0].stem}_gambas.nii.gz"), help="Path to save the result NIfTI file")
-        parser.add_argument("--result_sr", type=str, default=str(Path(parser.get_default("output_dir")) / f"{input_files[0].stem}_sr.nii.gz"), help="Path to save the result NIfTI file")
+        # parser.add_argument("--result_gambas", type=str, default=str(Path(parser.get_default("output_dir")) / f"{input_files[0].stem}_gambas.nii.gz"), help="Path to save the result NIfTI file")
+        parser.add_argument("--result_sr", type=str, default=str(Path(parser.get_default("output_dir")) / output_label), help="Path to save the result NIfTI file")
         
         # Parse additional configuration arguments
         parser.add_argument("--phase", type=str, default=config.get("phase", "test"), help="Test phase")

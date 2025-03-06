@@ -1,5 +1,9 @@
 # Changelog
 
+6/3/2025
+Updated outfile naming to be cleaner in BIDs format
+
+
 26/02/2025
 
 Version 0.0.5 NJB
