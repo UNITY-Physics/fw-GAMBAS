@@ -13,7 +13,6 @@ class TestOptions(BaseOptions):
         config = context.config
 
         output_label = parse_config(context)
-        print("output_label: ", output_label)
 
         # Define default input and output directories
         parser.add_argument("--input_dir", type=str, default="/flywheel/v0/input/input", help="Path to input directory")
@@ -35,6 +34,7 @@ class TestOptions(BaseOptions):
         parser.add_argument("--stride_inplane", type=int, default=int(config.get("stride_inplane", 32)), help="Stride size in 2D plane")
         parser.add_argument("--stride_layer", type=int, default=int(config.get("stride_layer", 32)), help="Stride size in Z direction")
         
+
         parser.set_defaults(model='test')
         self.isTrain = False
 
