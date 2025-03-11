@@ -39,7 +39,7 @@ def parse_config(context):
         model = 'GAMBAS'
     else:
         print("Running on CPU")
-        model = 'SR'
+        model = 'ResCNN'
     
     # Get the input file id
     input_container = context.client.get_analysis(context.destination["id"])
@@ -105,4 +105,4 @@ def parse_config(context):
             output_label = f'sub-{subject_label}_ses-{session_label}_acq-{input_label}_rec-{model}.nii.gz'
             print("Output filename:", output_label)
     
-    return output_label
+    return output_label, model

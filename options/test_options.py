@@ -11,8 +11,18 @@ class TestOptions(BaseOptions):
         # Initialize Flywheel context and configuration
         context = flywheel.GearContext()
         config = context.config
+        output_label, which_model = parse_config(context)
+        
+        # Determine GPU setting based on model
+        gpu_index = '0' if which_model == 'GAMBAS' else '-1'
+        gpu_setting = 'gpu' if which_model == 'GAMBAS' else 'cpu'
 
-        output_label = parse_config(context)
+        # print(f"GPU index: {gpu_index}")
+        # print(f"GPU setting: {gpu_setting}")
+
+        # Update gpu_ids argument in base options
+        parser.set_defaults(gpu_ids=gpu_index)
+        parser.set_defaults(name=gpu_setting)
 
         # Define default input and output directories
         parser.add_argument("--input_dir", type=str, default="/flywheel/v0/input/input", help="Path to input directory")

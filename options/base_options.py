@@ -28,8 +28,7 @@ class BaseOptions():
         parser.add_argument('--n_layers_D', type=int, default=3, help='only used if netD==n_layers')
         parser.add_argument('--netG', type=str, default='res_cnn', help='selects model to use for netG. Look on Networks3D to see the whole list (i2i_mamba = gpu (to be renamed gambas); res_cnn = cpu)')
 
-        default_gpu_id = '0'
-        parser.add_argument('--gpu_ids', default=default_gpu_id, help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+        parser.add_argument('--gpu_ids', default=-1, help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
 
         parser.add_argument('--name', type=str, default='cpu', help='name of the experiment. It decides where to store samples and models')
         parser.add_argument('--model', type=str, default='i2i_mamba_one', help='chooses which model to use: cycle_gan|pix2pix|ea_gan|resvit_one|i2i_mamba_one')
