@@ -9,49 +9,76 @@ import math
 from torch.autograd import Variable
 from tqdm import tqdm
 import datetime
+import subprocess
 
-def Registration(image, label):
+def Registration(image, template, output_prefix):
+    """
+    Runs antsRegistrationSyNQuick.sh with the provided parameters.
 
-    image, image_sobel, label, label_sobel,  = image, image, label, label
+    Parameters:
+        image (str): Path to the moving image.
+        template (str): Path to the template file.
+        output_prefix (str): Output prefix for the resulting files.
 
-    Gaus = sitk.GradientMagnitudeRecursiveGaussianImageFilter()
-    image_sobel = Gaus.Execute(image_sobel)
-    label_sobel = Gaus.Execute(label_sobel)
+    Returns:
+        None
+    """
+    command = [
+        "antsRegistrationSyNQuick.sh",
+        "-d", "3",               # 3D registration
+        "-f", template,          # Fixed image (template)
+        "-m", image,             # Moving image (input image)
+        "-t", "r",               # Rigid registration
+        "-o", output_prefix     # Output prefix
+    ]
 
-    fixed_image = label_sobel
-    moving_image = image_sobel
+    try:
+        subprocess.run(command, check=True)
+        print(f"Registration completed. Output saved to {output_prefix}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during registration: {e}")
 
-    initial_transform = sitk.CenteredTransformInitializer(fixed_image,
-                                                          moving_image,
-                                                          sitk.Euler3DTransform(),
-                                                          sitk.CenteredTransformInitializerFilter.GEOMETRY)
+    output_image = output_prefix + "Warped.nii.gz"
+    # image, image_sobel, label, label_sobel,  = image, image, label, label
 
-    registration_method = sitk.ImageRegistrationMethod()
-    # Similarity metric settings.
-    registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
-    registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(0.1)
-    registration_method.SetInterpolator(sitk.sitkLinear)
-    # Optimizer settings.
-    registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100,
-                                                      convergenceMinimumValue=1e-6, convergenceWindowSize=10)
-    registration_method.SetOptimizerScalesFromPhysicalShift()
+    # Gaus = sitk.GradientMagnitudeRecursiveGaussianImageFilter()
+    # image_sobel = Gaus.Execute(image_sobel)
+    # label_sobel = Gaus.Execute(label_sobel)
 
-    # Setup for the multi-resolution framework.
-    registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
-    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
-    registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+    # fixed_image = label_sobel
+    # moving_image = image_sobel
 
-    # Don't optimize in-place, we would possibly like to run this cell multiple times.
-    registration_method.SetInitialTransform(initial_transform, inPlace=False)
+    # initial_transform = sitk.CenteredTransformInitializer(fixed_image,
+    #                                                       moving_image,
+    #                                                       sitk.Euler3DTransform(),
+    #                                                       sitk.CenteredTransformInitializerFilter.GEOMETRY)
 
-    final_transform = registration_method.Execute(sitk.Cast(fixed_image, sitk.sitkFloat32),
-                                                  sitk.Cast(moving_image, sitk.sitkFloat32))
+    # registration_method = sitk.ImageRegistrationMethod()
+    # # Similarity metric settings.
+    # registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
+    # registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
+    # registration_method.SetMetricSamplingPercentage(0.1)
+    # registration_method.SetInterpolator(sitk.sitkLinear)
+    # # Optimizer settings.
+    # registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100,
+    #                                                   convergenceMinimumValue=1e-6, convergenceWindowSize=10)
+    # registration_method.SetOptimizerScalesFromPhysicalShift()
 
-    image = sitk.Resample(image, fixed_image, final_transform, sitk.sitkLinear, 0.0,
-                                     moving_image.GetPixelID())
+    # # Setup for the multi-resolution framework.
+    # registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
+    # registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
+    # registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
-    return image, label
+    # # Don't optimize in-place, we would possibly like to run this cell multiple times.
+    # registration_method.SetInitialTransform(initial_transform, inPlace=False)
+
+    # final_transform = registration_method.Execute(sitk.Cast(fixed_image, sitk.sitkFloat32),
+    #                                               sitk.Cast(moving_image, sitk.sitkFloat32))
+
+    # image = sitk.Resample(image, fixed_image, final_transform, sitk.sitkLinear, 0.0,
+    #                                  moving_image.GetPixelID())
+
+    return output_image
 
 def from_numpy_to_itk(image_np, image_itk):
     image_np = np.transpose(image_np, (2, 1, 0))
