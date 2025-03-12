@@ -16,13 +16,13 @@ class TestOptions(BaseOptions):
         # Determine GPU setting based on model
         gpu_index = '0' if which_model == 'GAMBAS' else '-1'
         gpu_setting = 'gpu' if which_model == 'GAMBAS' else 'cpu'
+        netG = 'i2i_mamba' if which_model == 'GAMBAS' else 'res_cnn'
 
-        # print(f"GPU index: {gpu_index}")
-        # print(f"GPU setting: {gpu_setting}")
 
         # Update gpu_ids argument in base options
         parser.set_defaults(gpu_ids=gpu_index)
         parser.set_defaults(name=gpu_setting)
+        parser.set_defaults(netG=netG)
 
         # Define default input and output directories
         parser.add_argument("--input_dir", type=str, default="/flywheel/v0/input/input", help="Path to input directory")

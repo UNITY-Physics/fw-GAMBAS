@@ -1,8 +1,11 @@
 # Changelog
+12/3/2025 
+Version 0.1.6 NJB
+- update netG and model selection based on cpu/gpu selection
 
-11/03/2025
-Version 0.1.5 NJB
-Options for running on GPU or CPU should be available (requires testing)
+6/3/2025
+Updated outfile naming to be cleaner in BIDs format
+
 
 26/02/2025
 
