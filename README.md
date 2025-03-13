@@ -10,7 +10,7 @@
 ### Summary
 A hybrid CNN and state-space model (SSM) architecture featuring a novel 3D to 1D serialisation (GAMBAS), which learns long-range context without sacrificing spatial precision. The model is trained on peadiatric Hyperfine Swoop scans from low- and middle-income countries (LMICs), providing super-resolution of ultra-low-field MRI data. 
 
-The output file labels are based on the BIDS standard, taking the input file name and appending the appropriate suffixes. For example if the input file is `sub-01_ses-01_T1w.nii.gz`, the output files will be named `sub-01_ses-01_T1w_gambas.nii.gz`
+The output file labels are based on the BIDS standard, taking the input file name and appending the appropriate suffixes. For example if the input file is `sub-01_ses-01_T2w_AXI.nii.gz`, the output files will be named `sub-01_ses-01_acq-T2w_AXI_rec-gambas.nii.gz`
 
 ### Cite
 
@@ -29,7 +29,7 @@ Baljer, L., Zhang, Y., Bourke, N.J., Donald, K.A., Bradford, L.E., Ringshaw, J.E
 *Gear Level:*
 
 * [ ] Project
-* [x] Subject
+* [ ] Subject
 * [x] Session
 * [ ] Acquisition
 * [ ] Analysis
@@ -65,7 +65,7 @@ No metadata currently created by this gear
 
 ### Pre-requisites
 
-- Three dimensional structural image
+- Axial/Isotropic nifti file
 
 #### Prerequisite Gear Runs
 
@@ -88,16 +88,18 @@ it does, but HOW it works in flywheel
 
 ### Description
 
-This gear is run at either the `Subject` or the `Session` level. It downloads the data for that subject/session and then runs the
-`gambas` module on it.
-
+This gear is run at the `Session` level. It downloads the data for that subject/session and then runs the `gambas` module on it. Future development will include the ability to batch process multiple subjects/sessions from running the gear at the `Project` level.
 After the pipeline is run, the output saved into the analysis
 container.
 
 
 #### File Specifications
 
-This section contains specifications on any input files that the gear may need
+The model is trained on axial input for 3 months - 3 years old children. Use of scans from older children or planes is not recommended currently. New models are being trained to accommodate these variations.
+
+#### GPU Usage
+The default configuration for this gear is to use a CPU. This will perform super-resolution with a residual convolutiona neural network (RCNN). GPU can be enabled by setting the `tag` to `gpu` in the gear configuration. This will perform super-resolution with a 3D U-Net. Performance will be faster and the output will be of higher quality. 
+
 
 ### Workflow
 
@@ -126,6 +128,9 @@ Description of workflow
 4. Output data is saved in the container
 
 ### Use Cases
+
+- Super-resolution of ultra-low-field peadiatric MRI data
+- Only and axial acquisition has passed QC a super-resoloved image can be generated
 
 ## FAQ
 
