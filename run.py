@@ -14,7 +14,9 @@ import SimpleITK as sitk
 from app.main import inference
 from app.main import Registration
 
-# import app.main as main
+import os
+os.environ["PATH"] += os.pathsep + "/opt/ants-2.5.4/bin"
+
 
 
 # Add top-level package directory to sys.path
@@ -30,17 +32,12 @@ log = logging.getLogger(__name__)
 
 def main(context: GearToolkitContext) -> None:
     # """Parses config and runs."""
-    # subject_label, session_label, input_label = parse_config(context)
     
     print('Parsing config')
     opt = TestOptions().parse()
 
-    image = sitk.ReadImage(opt.image)
-    reference = sitk.ReadImage(opt.reference)
-    workDir = '/flywheel/v0/work/tmp'
-
     print('Registering images')
-    input_image, reference = Registration(image, reference, workDir)
+    input_image = Registration(opt.image, opt.reference)
     # sitk.WriteImage(image, outPath)
 
     print('Creating model')

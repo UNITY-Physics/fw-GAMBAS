@@ -11,7 +11,7 @@ from tqdm import tqdm
 import datetime
 import subprocess
 
-def Registration(image, template, output_prefix):
+def Registration(image, template):
     """
     Runs antsRegistrationSyNQuick.sh with the provided parameters.
 
@@ -23,8 +23,16 @@ def Registration(image, template, output_prefix):
     Returns:
         None
     """
+
+    work = "/flywheel/v0/work/"
+    os.makedirs(work, exist_ok=True)  # Creates directory if it doesn't exist
+    output_prefix = os.path.join(work, "ants_rr_")  # Ensures proper path joining
+
+    print(f"Registering {image} to {template}...")
+    print(f"Output will be saved to {output_prefix}")
+
     command = [
-        "antsRegistrationSyNQuick.sh",
+        "/opt/ants-2.5.4/bin/antsRegistrationSyNQuick.sh",
         "-d", "3",               # 3D registration
         "-f", template,          # Fixed image (template)
         "-m", image,             # Moving image (input image)
@@ -33,50 +41,15 @@ def Registration(image, template, output_prefix):
     ]
 
     try:
-        subprocess.run(command, check=True)
-        print(f"Registration completed. Output saved to {output_prefix}")
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print("Registration output:", result.stdout)
+        print("Registration errors:", result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"Error during registration: {e}")
+        print("ANTS Registration failed!")
+        print("Error message:", e.stderr)
+        raise
 
     output_image = output_prefix + "Warped.nii.gz"
-    # image, image_sobel, label, label_sobel,  = image, image, label, label
-
-    # Gaus = sitk.GradientMagnitudeRecursiveGaussianImageFilter()
-    # image_sobel = Gaus.Execute(image_sobel)
-    # label_sobel = Gaus.Execute(label_sobel)
-
-    # fixed_image = label_sobel
-    # moving_image = image_sobel
-
-    # initial_transform = sitk.CenteredTransformInitializer(fixed_image,
-    #                                                       moving_image,
-    #                                                       sitk.Euler3DTransform(),
-    #                                                       sitk.CenteredTransformInitializerFilter.GEOMETRY)
-
-    # registration_method = sitk.ImageRegistrationMethod()
-    # # Similarity metric settings.
-    # registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
-    # registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    # registration_method.SetMetricSamplingPercentage(0.1)
-    # registration_method.SetInterpolator(sitk.sitkLinear)
-    # # Optimizer settings.
-    # registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100,
-    #                                                   convergenceMinimumValue=1e-6, convergenceWindowSize=10)
-    # registration_method.SetOptimizerScalesFromPhysicalShift()
-
-    # # Setup for the multi-resolution framework.
-    # registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
-    # registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
-    # registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
-
-    # # Don't optimize in-place, we would possibly like to run this cell multiple times.
-    # registration_method.SetInitialTransform(initial_transform, inPlace=False)
-
-    # final_transform = registration_method.Execute(sitk.Cast(fixed_image, sitk.sitkFloat32),
-    #                                               sitk.Cast(moving_image, sitk.sitkFloat32))
-
-    # image = sitk.Resample(image, fixed_image, final_transform, sitk.sitkLinear, 0.0,
-    #                                  moving_image.GetPixelID())
 
     return output_image
 
