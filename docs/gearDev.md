@@ -11,6 +11,7 @@ https://flywheel-io.gitlab.io/tools/app/cli/fw-beta/login/
 > fw-beta login --api-key=${FW_CLI_API_KEY} .   
 
 ### In the folder where you have your gear (Dockerfile and manifest), run:
+> export DOCKER_DEFAULT_PLATFORM=linux/amd64 # for GPU builds on Mac
 > fw-beta gear build 
 
 building flywheel container from contents of current directory

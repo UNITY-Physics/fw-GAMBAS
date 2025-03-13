@@ -5,6 +5,25 @@ import os
 import re
 from flywheel_gear_toolkit import GearToolkitContext
 
+import os
+import subprocess
+
+def check_gpu():
+    """Check if the container has access to a GPU."""
+    try:
+        # Check if NVIDIA GPUs are available
+        result = subprocess.run(["nvidia-smi"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            print("GPU detected!")
+            return True
+        else:
+            print("No GPU detected.")
+            return False
+    except FileNotFoundError:
+        print("nvidia-smi not found. No GPU available.")
+        return False
+
+
 def parse_config(context):
     """Parse the config and other options from the context, both gear and app options.
 
@@ -14,17 +33,14 @@ def parse_config(context):
         app_options: options to pass to the app
     """
 
-    # Extract tags from the destination analysis container
-    tags = context.destination.get("tags", [])
-
-    # Check if 'gpu' is in the list of tags
-    if "gpu" in tags:
-        print("GPU processing enabled.")
-        model = 'gambas'
+    is_gpu = check_gpu()
+    if is_gpu:
+        print("Running on GPU")
+        model = 'GAMBAS'
     else:
-        print("GPU processing not requested.")
-        model = 'SR'
-
+        print("Running on CPU")
+        model = 'ResCNN'
+    
     # Get the input file id
     input_container = context.client.get_analysis(context.destination["id"])
 
@@ -86,7 +102,7 @@ def parse_config(context):
 
             print("Input label:", input_label)
 
-            output_label = f'sub-{subject_label}_ses-{session_label}_acq-{input_label}.nii.gz'
-            print("Output label:", output_label)
+            output_label = f'sub-{subject_label}_ses-{session_label}_acq-{input_label}_rec-{model}.nii.gz'
+            print("Output filename:", output_label)
     
-    return output_label
+    return output_label, model

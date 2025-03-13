@@ -740,8 +740,8 @@ class I2IMamba(nn.Module):
         # self.bottleneck_4 = cmMambaWithCNN(self.config, input_dim)
 
         # cmMamba block with residual CNN block
-        # self.bottleneck_5 = cmMambaWithCNN(self.config, input_dim)
-        self.bottleneck_5 = BottleneckCNN(self.config)
+        self.bottleneck_5 = cmMambaWithCNN(self.config, input_dim)
+        # self.bottleneck_5 = BottleneckCNN(self.config)
         
         self.bottleneck_6 = BottleneckCNN(self.config)
         # self.bottleneck_6 = cmMambaWithCNN(self.config, input_dim)

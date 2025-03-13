@@ -1,5 +1,14 @@
 # Changelog
 
+0.1.8 (2025-03-12) NJB  
+- Updated bottleneck_5 in residual_transformers3D.py  
+- Refactored input for ants  
+
+
+12/3/2025  
+Version 0.1.6 NJB  
+- update netG and model selection based on cpu/gpu selection
+
 6/3/2025
 Updated outfile naming to be cleaner in BIDs format
 

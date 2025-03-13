@@ -9,49 +9,49 @@ import math
 from torch.autograd import Variable
 from tqdm import tqdm
 import datetime
+import subprocess
 
-def Registration(image, label):
+def Registration(image, template):
+    """
+    Runs antsRegistrationSyNQuick.sh with the provided parameters.
 
-    image, image_sobel, label, label_sobel,  = image, image, label, label
+    Parameters:
+        image (str): Path to the moving image.
+        template (str): Path to the template file.
+        output_prefix (str): Output prefix for the resulting files.
 
-    Gaus = sitk.GradientMagnitudeRecursiveGaussianImageFilter()
-    image_sobel = Gaus.Execute(image_sobel)
-    label_sobel = Gaus.Execute(label_sobel)
+    Returns:
+        None
+    """
 
-    fixed_image = label_sobel
-    moving_image = image_sobel
+    work = "/flywheel/v0/work/"
+    os.makedirs(work, exist_ok=True)  # Creates directory if it doesn't exist
+    output_prefix = os.path.join(work, "ants_rr_")  # Ensures proper path joining
 
-    initial_transform = sitk.CenteredTransformInitializer(fixed_image,
-                                                          moving_image,
-                                                          sitk.Euler3DTransform(),
-                                                          sitk.CenteredTransformInitializerFilter.GEOMETRY)
+    print(f"Registering {image} to {template}...")
+    print(f"Output will be saved to {output_prefix}")
 
-    registration_method = sitk.ImageRegistrationMethod()
-    # Similarity metric settings.
-    registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
-    registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(0.1)
-    registration_method.SetInterpolator(sitk.sitkLinear)
-    # Optimizer settings.
-    registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100,
-                                                      convergenceMinimumValue=1e-6, convergenceWindowSize=10)
-    registration_method.SetOptimizerScalesFromPhysicalShift()
+    command = [
+        "/opt/ants-2.5.4/bin/antsRegistrationSyNQuick.sh",
+        "-d", "3",               # 3D registration
+        "-f", template,          # Fixed image (template)
+        "-m", image,             # Moving image (input image)
+        "-t", "r",               # Rigid registration
+        "-o", output_prefix     # Output prefix
+    ]
 
-    # Setup for the multi-resolution framework.
-    registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
-    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
-    registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+    try:
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print("Registration output:", result.stdout)
+        print("Registration errors:", result.stderr)
+    except subprocess.CalledProcessError as e:
+        print("ANTS Registration failed!")
+        print("Error message:", e.stderr)
+        raise
 
-    # Don't optimize in-place, we would possibly like to run this cell multiple times.
-    registration_method.SetInitialTransform(initial_transform, inPlace=False)
+    output_image = output_prefix + "Warped.nii.gz"
 
-    final_transform = registration_method.Execute(sitk.Cast(fixed_image, sitk.sitkFloat32),
-                                                  sitk.Cast(moving_image, sitk.sitkFloat32))
-
-    image = sitk.Resample(image, fixed_image, final_transform, sitk.sitkLinear, 0.0,
-                                     moving_image.GetPixelID())
-
-    return image, label
+    return output_image
 
 def from_numpy_to_itk(image_np, image_itk):
     image_np = np.transpose(image_np, (2, 1, 0))

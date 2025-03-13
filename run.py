@@ -14,7 +14,9 @@ import SimpleITK as sitk
 from app.main import inference
 from app.main import Registration
 
-# import app.main as main
+import os
+os.environ["PATH"] += os.pathsep + "/opt/ants-2.5.4/bin"
+
 
 
 # Add top-level package directory to sys.path
@@ -30,25 +32,20 @@ log = logging.getLogger(__name__)
 
 def main(context: GearToolkitContext) -> None:
     # """Parses config and runs."""
-    # subject_label, session_label, input_label = parse_config(context)
     
     print('Parsing config')
     opt = TestOptions().parse()
 
-    image = sitk.ReadImage(opt.image)
-    reference = sitk.ReadImage(opt.reference)
-    outPath = opt.result_sr
-
     print('Registering images')
-    image, reference = Registration(image, reference)
-    sitk.WriteImage(image, outPath)
+    input_image = Registration(opt.image, opt.reference)
+    # sitk.WriteImage(image, outPath)
 
     print('Creating model')
     model = create_model(opt)
     model.setup(opt)
 
     print('Running inference')
-    inference(model, outPath, opt.result_sr, opt.resample, opt.new_resolution, opt.patch_size[0],
+    inference(model, input_image, opt.result_sr, opt.resample, opt.new_resolution, opt.patch_size[0],
               opt.patch_size[1], opt.patch_size[2], opt.stride_inplane, opt.stride_layer, 1)
 
     # have and option if gpu is called then have opt.result_gambas instead of opt.result_srs
