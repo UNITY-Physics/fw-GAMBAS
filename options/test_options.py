@@ -16,7 +16,7 @@ class TestOptions(BaseOptions):
         # Determine GPU setting based on model
         gpu_index = '0' if which_model == 'GAMBAS' else '-1'
         gpu_setting = 'gpu' if which_model == 'GAMBAS' else 'cpu'
-        netG = 'i2i_mamba' if which_model == 'GAMBAS' else 'res_cnn'
+        netG = 'gambas' if which_model == 'GAMBAS' else 'res_cnn'
 
 
         # Update gpu_ids argument in base options
