@@ -31,6 +31,25 @@ def check_gpu():
         return False
 
 
+import os
+import subprocess
+
+def check_gpu():
+    """Check if the container has access to a GPU."""
+    try:
+        # Check if NVIDIA GPUs are available
+        result = subprocess.run(["nvidia-smi"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            print("GPU detected!")
+            return True
+        else:
+            print("No GPU detected.")
+            return False
+    except FileNotFoundError:
+        print("nvidia-smi not found. No GPU available.")
+        return False
+
+
 def parse_config(context):
     """Parse the config and other options from the context, both gear and app options.
 
@@ -40,6 +59,7 @@ def parse_config(context):
     """
 
     # Check if the container has access to a GPU
+
     is_gpu = check_gpu()
     if is_gpu:
         print("Running on GPU")
@@ -52,6 +72,7 @@ def parse_config(context):
     input_dir = base_dir + '/input/'
     work_dir = base_dir + '/work/'
     output_dir = base_dir + '/output/'
+
     # Get the input file id
     input_container = context.client.get_analysis(context.destination["id"])
     
@@ -404,6 +425,7 @@ def check_age(ses_id):
         return True, age_in_months
     else:
         return False, age_in_months
+
 
 
 

@@ -22,6 +22,7 @@ from app.main import Registration
 import utils.bids as gb
 from utils.parser import parse_input_files
 
+
 # Add top-level package directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Verify sys.path
@@ -224,6 +225,7 @@ def fw_process_subject(layout, sub, ses, which_model, config):
         logs.append(log_filename)
 
     return raw_fnames, deriv_fnames, logs
+
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover

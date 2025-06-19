@@ -57,6 +57,7 @@ class TestOptions(BaseOptions):
         output_path = Path(f"/flywheel/v0/work/derivatives/sub-{self.sub}/ses-{self.ses}/anat")
         output_path.mkdir(parents=True, exist_ok=True)
 
+
         m = self.which_model
         output_label = get_gambas_basename(self.image, m)
         

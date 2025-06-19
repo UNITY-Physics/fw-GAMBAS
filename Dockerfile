@@ -22,9 +22,18 @@ RUN apt-get update && apt-get install -y curl tar unzip git && \
 
 RUN apt-get update && apt-get install -y dcm2niix
 
+
 # Copy and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install ANTs
+RUN apt-get update && apt-get install -y curl tar unzip && \
+    curl -fsSL https://github.com/ANTsX/ANTs/releases/download/v2.5.4/ants-2.5.4-almalinux8-X64-gcc.zip -o /tmp/ants.tar.gz && \
+    unzip /tmp/ants.tar.gz -d /opt/ && \
+    rm /tmp/ants.tar.gz && \
+    echo 'export PATH=/opt/ants-2.5.4/bin:$PATH' >> ~/.bashrc
+
 
 # Copy the contents of the directory the Dockerfile is into the working directory of the to be container
 COPY ./ $FLYWHEEL/
