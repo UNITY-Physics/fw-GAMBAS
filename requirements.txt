@@ -12,5 +12,4 @@ rotary_embedding_torch
 matplotlib
 scipy
 ml_collections
-SimpleITK
 mamba-ssm
