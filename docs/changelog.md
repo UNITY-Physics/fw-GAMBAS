@@ -1,5 +1,9 @@
 # Changelog
 
+BETA:
+This branch has been updated on an older version of the code. Needs to be updated to the latest version of the code before merging.
+
+
 0.1.8 (2025-03-12) NJB  
 - Updated bottleneck_5 in residual_transformers3D.py  
 - Refactored input for ants  

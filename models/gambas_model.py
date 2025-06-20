@@ -38,9 +38,9 @@ class ImagePool():
         return return_images
 
 
-class I2IMambaOneModel(BaseModel):
+class GambasModel(BaseModel):
     def name(self):
-        return "I2IMambaOneModel"
+        return "GambasModel"
 
     @staticmethod
     def modify_commandline_options(parser, is_train=True):
