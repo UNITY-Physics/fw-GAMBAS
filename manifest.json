@@ -7,7 +7,6 @@
       "type": "boolean",
       "default": false,
       "description": "Force run the model to bypass check if within age range"
-
     },
     "phase": {
       "type": "string",
@@ -51,8 +50,7 @@
     },
     "gear-builder": {
       "category": "analysis",
-      "image": "flywheel/gambas:0.4.14"
-
+      "image": "flywheel/gambas-batch:0.4.15"
     },
     "kcl-app-binary": "app/main.sh",
     "kcl-app-modalities": [
@@ -67,8 +65,7 @@
       "non-commercial-use-only": false
     }
   },
-  "description": "Generalised-Hilbert Mamba for Super-resolution of Paediatric Ultra-Low-Field MRI. GPU enabled runs will run the GAMBAS model on the input image to generate a super-resolved image. CPU runs will be slower and have slightly degraded performance and is based of a Residual Convolution Network model. The model is based on the U-Net architecture and is trained on a dataset of paediatric ultra-low-field MRI images (3 months - 3 years). Model weights version 2, trained on 215 subjects. ",
-
+  "description": "**BATCH VERSION** To be run on project level, to loop over all sessions. Generalised-Hilbert Mamba for Super-resolution of Paediatric Ultra-Low-Field MRI. GPU enabled runs will run the GAMBAS model on the input image to generate a super-resolved image. CPU runs will be slower and have slightly degraded performance and is based of a Residual Convolution Network model. The model is based on the U-Net architecture and is trained on a dataset of paediatric ultra-low-field MRI images (3 months - 3 years). Model weights version 2, trained on 215 subjects. ",
   "environment": {
     "FLYWHEEL": "/flywheel/v0",
     "LANG": "C.UTF-8",
@@ -128,12 +125,11 @@
       "optional": true
     }
   },
-  "label": "GAMBAS",
+  "label": "GAMBAS-Batch",
   "license": "MIT",
   "maintainer": "Niall Bourke <niall.bourke@kcl.ac.uk>",
-  "name": "gambas",
+  "name": "gambas-batch",
   "source": "https://github.com/UNITY-Physics/fw-GAMBAS",
   "url": "https://openreview.net/forum?id=ikfiyBBHAz",
-  "version": "0.4.14"
-
+  "version": "0.4.15"
 }

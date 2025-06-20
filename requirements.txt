@@ -12,7 +12,6 @@ rotary_embedding_torch
 matplotlib
 scipy
 ml_collections
-SimpleITK
 mamba-ssm
 bids
 dcm2bids
