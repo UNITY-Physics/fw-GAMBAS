@@ -8,8 +8,8 @@ import random
 import functools
 from torch.optim import lr_scheduler
 import monai
-from .deprecated.ddpm_3D import Unet3D, WBlock
 from . import residual_transformers3D
+from . import mamba_modules3D
 from monai.networks.nets import SwinUNETR
 
 ###############################################################################
@@ -100,17 +100,12 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 8, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     elif netG == 'Dynet':
         net = Dynet()
-    elif netG == 'unet_256_ddm':
-        net = Unet3D(
-            dim = kwargs['dim'], 
-            dim_mults = kwargs['dim_mults'],
-            init_dim = kwargs['init_dim'],
-            resnet_groups = kwargs['resnet_groups']
-        )
+
     elif netG == 'res_cnn':
         vit_name = kwargs['vit_name']
         img_size = kwargs['img_size']
         net = residual_transformers3D.Res_CNN(residual_transformers3D.CONFIGS[vit_name], input_dim= input_nc, img_size=img_size, output_dim=1, vis=False)
+        
     elif netG == 'resvit':
         vit_name = kwargs['vit_name']
         img_size = kwargs['img_size']
@@ -141,19 +136,18 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         if pre_trained_trans:
             print(config_vit.pretrained_path)
             net.load_from(weights=np.load(config_vit.pretrained_path))
-    elif netG == "i2i_mamba":
-        vit_name = kwargs['vit_name']
+
+    elif netG == "gambas":
+        # vit_name = kwargs['vit_name']
         img_size = kwargs['img_size']
-        print(vit_name)
-        net = residual_transformers3D.I2IMamba(
-            residual_transformers3D.CONFIGS[vit_name],
+        # print(vit_name)
+        net = mamba_modules3D.GAMBAS(
             input_dim=input_nc,
             img_size=img_size,
-            output_dim=1,
-            vis=False
+            output_dim=1
         )
     elif netG == "swin_unetr":
-        net = SwinUNETR(img_size=(128,128,128), in_channels=1, out_channels=1, use_v2=True)
+        net = SwinUNETR(img_size=(128,128,128), in_channels=1, out_channels=1, feature_size = 48, use_v2=True)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
 
@@ -174,10 +168,6 @@ def define_D(input_nc, ndf, netD,
     else:
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % net)
     return init_net(net, init_type, init_gain, gpu_ids)
-
-
-def define_W(init_type='normal', init_gain=0.02, gpu_ids=[]):
-    return init_net(WBlock(), init_type, init_gain, gpu_ids)
 
 
 ##############################################################################
