@@ -12,6 +12,7 @@ __pycache__
 config.json
 license.txt
 local-debug.sh
+gambas-0.4.15-6894be1e75796cf2e4da8cc4
 
 # large project files
 app/cpu/latest_net_G.pth
