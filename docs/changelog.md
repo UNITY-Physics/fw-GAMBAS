@@ -1,7 +1,37 @@
 # Changelog
 
-BETA:
-This branch has been updated on an older version of the code. Needs to be updated to the latest version of the code before merging.
+0.4.5 
+DEBUGGING: Ammended test options to run cpu model on GPU
+Added the registration step to output
+
+0.4.3 (2025-05-29) NJB
+- Replaced gpu checkpoint in case it was not updated correctly in the last version
+
+0.4.2 (2025-05-27) NJB LB
+- Update to catch name (where checkpoint is stored)
+
+
+0.4.1 (2025-05-22) NJB
+- updated file output name to handle multiple runs
+
+0.4.0 (2025-04-04) NJB
+- Updated to use the latest version of the model (n=215)
+
+0.3.1 (2025-03-24) NJB
+- Added in catch for age if outside of trained model range
+- Added in loging for each session to return
+
+0.3.0 (2025-03-21) NJB
+Working version of the gear that can run at project level.
+- catches input labels with dashes and underscores that are not in the BIDS standard
+- Need to clean up code and document so is clearer
+- Could shift elements of run.py to a separate file to make it cleaner
+- Should set up catch for age? as model will run if older that the trained model but will not be accurate
+- Log output is not comming out in expected order, need to check this
+- Load in specific files for the model, rather than the whole directory
+
+0.2.4 (2025-03-21) NJB
+- Refactoring to run at the project level
 
 
 0.1.8 (2025-03-12) NJB  

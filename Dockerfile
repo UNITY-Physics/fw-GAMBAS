@@ -26,7 +26,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --only-binary=SimpleITK SimpleITK
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Copy the contents of the directory the Dockerfile is into the working directory of the to be container
 COPY ./ $FLYWHEEL/
 
