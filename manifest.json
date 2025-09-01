@@ -126,7 +126,7 @@
       "optional": true
     }
   },
-  "label": "GAMBAS-Batch",
+  "label": "GAMBAS",
   "license": "MIT",
   "maintainer": "Niall Bourke <niall.bourke@kcl.ac.uk>",
   "name": "gambas",
