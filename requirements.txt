@@ -13,4 +13,5 @@ matplotlib
 scipy
 ml_collections
 mamba-ssm
-
+bids
+dcm2bids
