@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import bids
-from datetime import datetime
 from io import StringIO
 import shutil
 
@@ -42,8 +41,8 @@ def main(context: GearToolkitContext) -> None:
     1. Parse the config and other options from the context, both gear and app options.
     2. Download the dataset.
     3. Initialize BIDS layout.
-    4. Process each subject and create a new analysis container for each.
-    5. Upload the output files to the analysis container.
+    4. Process each subject.
+    5. Write the gear outputs to the standard Flywheel output directory.
     """
 
     print('Step 1: Parsing config')
@@ -51,6 +50,7 @@ def main(context: GearToolkitContext) -> None:
     context = flywheel.GearContext()
     config = context.config
     input_container, config, manifest, which_model = parse_config(context)
+    os.makedirs(config["output_dir"], exist_ok=True)
     
     # Download the dataset 
     print('Step 2: Downloading dataset')
@@ -60,8 +60,9 @@ def main(context: GearToolkitContext) -> None:
     # Initialize BIDS layout
     print('Step 3: Initializing BIDS layout')
     layout = bids.BIDSLayout(root=f'{config["work_dir"]}/rawdata', derivatives=f'{config["work_dir"]}/derivatives')
+    failed_sessions = []
     
-    # Process each subject and create a new analysis container for each
+    # Process each subject and write outputs to the gear output directory
     print('Step 4: Processing each subject')
     for sub in subses.keys():
             for ses in subses[sub].keys():
@@ -70,9 +71,11 @@ def main(context: GearToolkitContext) -> None:
                 # Check for missing input or output
                 if not raw_fnames:
                     gb._logprint(f"[SKIPPING] No input files for {sub}/{ses}.")
+                    failed_sessions.append(f"{sub}/{ses}: no input files")
                     continue
                 if not deriv_fnames:
                     gb._logprint(f"[ERROR] Processing failed for {sub}/{ses}: No derived output.")
+                    failed_sessions.append(f"{sub}/{ses}: no derived output")
                     # Delete files in raw_fnames because derived output is missing
                     for file_path in raw_fnames:
                         try:
@@ -83,29 +86,15 @@ def main(context: GearToolkitContext) -> None:
                     continue
 
                 out_files = []
-                out_files.extend(raw_fnames)
                 out_files.extend(deriv_fnames)
                 out_files.extend(logs)
 
-                # Create a new analysis
-                gversion = manifest["version"]
-                gname = manifest["name"]
-                gdate = datetime.now().strftime("%Y%M%d_%H:%M:%S")
-                image = manifest["custom"]["gear-builder"]["image"]
-                session_container = context.client.get(subses[sub][ses])
-                
-                analysis = session_container.add_analysis(label=f'{gname}/{gversion} {gdate}')
-                analysis.update_info({"gear":gname,
-                                    "version":gversion, 
-                                    "image":image,
-                                    "Date":gdate,
-                                    "status": "failed" if not deriv_fnames else "success",
-                                    "note": "No derived outputs, processing may have failed." if not deriv_fnames else "",
-                                    **config})
-
                 for file in out_files:
-                    gb._logprint(f"Uploading output file: {os.path.basename(file)}")
-                    analysis.upload_output(file)
+                    gb._logprint(f"Saving output file: {os.path.basename(file)}")
+                    shutil.copy2(file, os.path.join(config["output_dir"], os.path.basename(file)))
+
+    if failed_sessions:
+        raise RuntimeError("Gear failed for one or more sessions: " + "; ".join(failed_sessions))
 
 
 # The main function for processing a subject
@@ -195,15 +184,6 @@ def fw_process_subject(layout, sub, ses, which_model, config):
                 # Log the error for this file and continue with the next one.
                 logging.error(f"Error processing file {f} for subject {sub} session {ses}: {e}")
                 continue  # Continue with the next file
-
-            
-            if fname:
-                deriv_fnames.append(fname)
-                logging.info(f"Inference completed")
-                logging.info(f"Output file: {fname}")
-            else:
-                logging.error(f"Inference failed")
-                logging.error(f"No output file generated")
 
     except Exception as e:
         logging.error(f"Error processing subject {sub} session {ses}: {e}")

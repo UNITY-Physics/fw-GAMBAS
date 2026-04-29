@@ -29,7 +29,9 @@ def import_dicom_folder(dicom_dir, sub_name, ses_name, config, projdir, skip_dcm
     cmd = f'dcm2bids --force_dcm2bids -d {shlex.quote(dicom_dir)} -p {sub_name} -s {ses_name} -c {config} -o {projdir}/rawdata -l DEBUG'
     if skip_dcm2niix:
         cmd += ' --skip_dcm2niix'
-    sp.Popen(shlex.split(cmd)).communicate()
+    result = sp.run(shlex.split(cmd), check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"dcm2bids failed with exit code {result.returncode}: {cmd}")
 
 
 def setup_bids_directories(projdir):

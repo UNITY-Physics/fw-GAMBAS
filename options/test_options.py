@@ -17,10 +17,11 @@ def get_gambas_basename(base, which_model):
     """
     
     suffix = "_gambas.nii.gz" if which_model == 'GAMBAS' else "_ResCNN.nii.gz"
+    base_name = Path(base).name
 
     # Append '_gambas' before extension
-    if base.endswith(".nii.gz"):
-        gambas_basename = base.replace(".nii.gz", suffix)
+    if base_name.endswith(".nii.gz"):
+        gambas_basename = base_name.replace(".nii.gz", suffix)
     else:
         raise ValueError("Unsupported file type")
 
@@ -42,9 +43,9 @@ class TestOptions(BaseOptions):
         parser = BaseOptions.initialize(self, parser)
         
         # Determine GPU setting based on model
-        gpu_index = '0' if which_model == 'GAMBAS' else '-1'
-        gpu_setting = 'gpu' if which_model == 'GAMBAS' else 'cpu'
-        netG = 'gambas' if which_model == 'GAMBAS' else 'res_cnn'
+        gpu_index = '0' if self.which_model == 'GAMBAS' else '-1'
+        gpu_setting = 'gpu' if self.which_model == 'GAMBAS' else 'cpu'
+        netG = 'gambas' if self.which_model == 'GAMBAS' else 'res_cnn'
 
 
 

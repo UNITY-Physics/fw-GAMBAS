@@ -11,6 +11,13 @@ RUN apt-get update && apt-get install -y \
     curl tar unzip git cmake build-essential g++ \
     && rm -rf /var/lib/apt/lists/*
 
+# Install dcm2niix so dcm2bids can validate its dependency even when using
+# --skip_dcm2niix.
+RUN curl -fsSL https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip -o /tmp/dcm2niix.zip && \
+    unzip /tmp/dcm2niix.zip -d /tmp/dcm2niix && \
+    install -m 0755 /tmp/dcm2niix/dcm2niix /usr/local/bin/dcm2niix && \
+    rm -rf /tmp/dcm2niix.zip /tmp/dcm2niix
+
 # Detect architecture and install appropriate ANTs version
 ARG ARCH_OVERRIDE
 RUN arch=$(uname -m) && echo "Detected architecture: $arch" && \
@@ -31,7 +38,7 @@ RUN arch=$(uname -m) && echo "Detected architecture: $arch" && \
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel packaging
-RUN pip install --no-cache-dir torch==2.2.2 torchvision==0.17.2
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu121 torch==2.2.2 torchvision==0.17.2
 
 # Copy and install requirements
 COPY requirements.txt .
